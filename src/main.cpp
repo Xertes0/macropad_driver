@@ -37,7 +37,7 @@ public:
 	}
 
 private:
-	static constexpr useconds_t DELAY{50000};
+	static constexpr useconds_t DELAY{25000};
 	xdo_t *m_xdo;
 };
 
@@ -48,44 +48,46 @@ enum class MacroType
 };
 
 constexpr size_t KEY_COUNT{10};
-constexpr std::array<std::pair<MacroType, std::string_view>, KEY_COUNT> KEYS {
-	std::make_pair(MacroType::Sequence, "Up"),
-	std::make_pair(MacroType::Text,     "adfa"),
-	std::make_pair(MacroType::Sequence, "C"),
+constexpr auto CONF_PATH{"/home/user/.config/macropad.json"};
 
-	std::make_pair(MacroType::Text,     "adfa"),
-	std::make_pair(MacroType::Sequence, "Right"),
-	std::make_pair(MacroType::Text,     "adfa"),
-
-	std::make_pair(MacroType::Sequence, "Down"),
-	std::make_pair(MacroType::Text,     "adfa"),
-	std::make_pair(MacroType::Sequence, "Left"),
-
-	std::make_pair(MacroType::Text,     "adfa"),
-};
-
-constexpr auto CONF_PATH{"/home/piotr/.config/macropad.json"};
-
-auto
-get_conf()
+struct Config
 {
-	std::ifstream file{CONF_PATH};
-	std::stringstream sstream{};
-	sstream << file.rdbuf();
+public:
+	Config() :
+		keys{}
+	{
+		std::ifstream file{CONF_PATH};
+		std::stringstream sstream{};
+		sstream << file.rdbuf();
 
-	auto const js = nlohmann::json::parse(sstream.str());
-	for(size_t i=0;i<KEY_COUNT;i++) {
-		auto const key = std::string{static_cast<char>('0' + i)};
-		if(js.contains(key)) {
-			std::cout << i << ':' << js[key] << '\n';
+		auto const js = nlohmann::json::parse(sstream.str());
+		for(size_t i=0;i<KEY_COUNT;i++) {
+			auto const key = std::string{static_cast<char>('0' + i)};
+			if(js.contains(key)) {
+				std::cout << i << ':' << js[key] << '\n';
+				keys[i] = std::make_pair(macro_type_from_str(js[key]["click"]["action"]), js[key]["click"]["data"]);
+			} else {
+				keys[i] = std::make_pair(MacroType::Text, "Default macro");
+			}
 		}
+	};
+
+	std::array<std::pair<MacroType, std::string>, KEY_COUNT> keys;
+
+private:
+	static auto
+	macro_type_from_str(std::string const &str) -> MacroType
+	{
+		if(str == "text")     return MacroType::Text;
+		if(str == "sequence") return MacroType::Sequence;
+
+		throw new std::runtime_error{"bad string value"};
 	}
-}
+};
 
 int main()
 {
-	get_conf();
-	return 0;
+	Config config;
 	XDO xdo;
 	//xdo.send_text("adfab");
 	//xdo.send_key("XF86AudioLowerVolume+XF86AudioMute");
@@ -96,14 +98,18 @@ int main()
 	}
 
 	while(true) {
-		char buffer[4] {'\0'};
+		char buffer[KEYS.size()+1] = {'\0'};
 		auto const bytes_read = read(fd, buffer, sizeof(buffer));
 		if(bytes_read != 0 && buffer[0] >= '0' && buffer[0] <= '9') {
 			printf("%s\n", buffer);
-			auto const &[type, data] = KEYS[buffer[0] - '0'];
-			switch(type) {
-				case MacroType::Text:     xdo.send_text(data.data()); break;
-				case MacroType::Sequence: xdo.send_key(data.data());  break;
+			for(size_t i=0;i<KEYS.size();i++) {
+				if(buffer[i] == '1') {
+					auto const &[type, data] = config.keys[i];
+					switch(type) {
+						case MacroType::Text:     xdo.send_text(data.data()); break;
+						case MacroType::Sequence: xdo.send_key(data.data());  break;
+					}
+				}
 			}
 		}
 		usleep(20);
