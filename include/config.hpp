@@ -11,6 +11,7 @@ enum class MacroType
 {
 	Text,
 	Sequence,
+	Run,
 };
 
 struct Config
@@ -18,7 +19,11 @@ struct Config
 public:
 	Config();
 
-	std::array<std::pair<MacroType, std::string>, KEY_COUNT> keys;
+	std::array<std::pair<MacroType, std::string>, KEY_COUNT> click_keys;
+	std::array<std::pair<MacroType, std::string>, KEY_COUNT> sec_keys;
+
+	void
+	reload();
 
 private:
 	static auto

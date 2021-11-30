@@ -22,7 +22,7 @@ public:
 	}
 
 private:
-	static constexpr useconds_t DELAY{50000};
+	static constexpr useconds_t DELAY{20000};
 	xdo_t* m_xdo;
 };
 
