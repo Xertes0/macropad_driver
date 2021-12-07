@@ -28,7 +28,7 @@ public:
 	send_comb(std::string const& keys)
 	{
 		send_keys_state<KeyState::Down>(keys);
-		usleep(DELAY*5);
+		usleep(DELAY);
 		send_keys_state<KeyState::Up>(keys);
 	}
 

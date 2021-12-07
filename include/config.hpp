@@ -3,9 +3,9 @@
 
 #include <array>
 #include <string>
+#include <filesystem>
 
 constexpr size_t KEY_COUNT{10};
-constexpr auto CONF_PATH{"/home/user/.config/macropad.json"};
 
 enum class MacroType
 {
@@ -28,6 +28,9 @@ public:
 private:
 	static auto
 	macro_type_from_str(std::string const& str) -> MacroType;
+
+	static auto
+	get_config_path() -> std::filesystem::path;
 };
 
 #endif // MACROPAD_DRIVER_CONFIG_HPP

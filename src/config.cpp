@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <cstdlib>
 
 #include <nlohmann/json.hpp>
 
@@ -14,7 +15,7 @@ Config::Config() :
 void
 Config::reload()
 {
-	std::ifstream     file{CONF_PATH};
+	std::ifstream     file{get_config_path()};
 	std::stringstream sstream{};
 	sstream << file.rdbuf();
 
@@ -40,4 +41,19 @@ Config::macro_type_from_str(std::string const& str) -> MacroType
 	if(str == "run")      return MacroType::Run;
 
 	throw std::runtime_error{"bad string value"};
+}
+
+auto
+Config::get_config_path() -> std::filesystem::path
+{
+#ifdef __linux__
+	return
+		std::filesystem::path{std::string{getenv("HOME")}} /
+		".config" /
+		"macropad.json";
+#else // asume it's windows
+	return
+		std::filesystem::path{std::string{getenv("HOMEPATH")}} /
+		"macropad.json";
+#endif
 }
