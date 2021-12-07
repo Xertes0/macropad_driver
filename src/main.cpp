@@ -24,12 +24,12 @@ handle_signal(int signum)
 }
 
 void
-execute(XDO& xdo, MacroType type, char const *const data)
+execute(XDO& xdo, MacroType type, std::string const& data)
 {
 	switch(type) {
 		case MacroType::Text:     xdo.send_text(data); break;
-		case MacroType::Sequence: xdo.send_key(data);  break;
-		case MacroType::Run:      std::system(data);   break;
+		case MacroType::Sequence: xdo.send_comb(data);  break;
+		case MacroType::Run:      std::system(data.c_str());   break;
 	}
 }
 
@@ -63,7 +63,7 @@ main() -> int
 							//printf("hold time\n");
 							auto const& [type, data] = g_config->sec_keys[i];
 							//printf("data: %s\n", data.data());
-							execute(xdo, type, data.data());
+							execute(xdo, type, data);
 						}
 						last_status[i]++;
 						continue;
@@ -74,7 +74,7 @@ main() -> int
 					if(last_status[i] != 0 && last_status[i] <= HOLD_TIMEOUT) {
 						auto const& [type, data] = g_config->click_keys[i];
 						//printf("data: %s\n", data.data());
-						execute(xdo, type, data.data());
+						execute(xdo, type, data);
 					}
 					last_status[i] = 0;
 				}
