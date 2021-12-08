@@ -19,13 +19,13 @@ public:
 		m_xdo{xdo_new(nullptr)} {}
 
 	void
-	send_text(std::string const& text)
+	send_text(std::string const& text) const
 	{
 		xdo_enter_text_window(m_xdo, CURRENTWINDOW, text.c_str(), DELAY);
 	}
 
 	void
-	send_comb(std::string const& keys)
+	send_comb(std::string const& keys) const
 	{
 		send_keys_state<KeyState::Down>(keys);
 		usleep(DELAY);
@@ -38,7 +38,7 @@ private:
 
 	template<KeyState STATE>
 	void
-	send_keys_state(std::string const& keys)
+	send_keys_state(std::string const& keys) const
 	{
 		using enum KeyState;
 		auto begin_iter = [](auto const& keys){

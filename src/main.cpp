@@ -14,6 +14,8 @@ constexpr auto PATH{"/dev/ttyACM0"};
 constexpr uint32_t HOLD_TIMEOUT{3};
 constexpr uint32_t HOLD_TIME{5};
 
+constexpr int32_t SIGNAL_OFFSET{10};
+
 std::unique_ptr<Config> g_config;
 
 void
@@ -24,7 +26,7 @@ handle_signal(int signum)
 }
 
 void
-execute(XDO& xdo, MacroType type, std::string const& data)
+execute(XDO const& xdo, MacroType type, std::string const& data)
 {
 	switch(type) {
 		case MacroType::Text:     xdo.send_text(data); break;
@@ -37,9 +39,9 @@ auto
 main() -> int
 {
 	g_config = std::make_unique<Config>();
-	XDO    xdo{};
+	XDO xdo{};
 
-	signal(SIGRTMIN+10, handle_signal);
+	signal(SIGRTMIN+SIGNAL_OFFSET, handle_signal);
 
 	int fd = open(PATH, O_RDONLY);
 	if(fd == -1) {
@@ -48,7 +50,9 @@ main() -> int
 	}
 	printf("Ok\n");
 
-	std::array<uint32_t, KEY_COUNT> last_status;
+	std::array<uint32_t, KEY_COUNT> last_status{};
+	last_status.fill('\0');
+
 	std::fill(std::begin(last_status), std::end(last_status), 0);
 
 	while(true) {
