@@ -1,13 +1,13 @@
-#include <unistd.h>
-#include <fcntl.h>
-
 #include <algorithm>
 #include <cstdio>
 #include <csignal>
 #include <memory>
 
-#include "xdo.hpp"
+#include <fcntl.h>
+#include <unistd.h>
+
 #include "config.hpp"
+#include "xdo.hpp"
 
 constexpr auto PATH{"/dev/ttyACM0"};
 

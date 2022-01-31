@@ -1,10 +1,11 @@
 #ifndef MACROPAD_DRIVER_XDO_HPP
 #define MACROPAD_DRIVER_XDO_HPP
 
-#include <xdo.h>
-#include <unistd.h>
-#include <string>
 #include <algorithm>
+#include <string>
+
+#include <unistd.h>
+#include <xdo.h>
 
 enum class KeyState
 {
@@ -78,7 +79,7 @@ private:
 
 			auto const [first, second] = substr_values(last, found);
 			auto key = keys.substr(first, second);
-			
+
 			if constexpr(STATE == Down)
 				xdo_send_keysequence_window_down(m_xdo, CURRENTWINDOW, key.c_str(), DELAY);
 			else

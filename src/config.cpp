@@ -1,8 +1,8 @@
 #include "config.hpp"
 
+#include <cstdlib>
 #include <fstream>
 #include <sstream>
-#include <cstdlib>
 
 #include <nlohmann/json.hpp>
 
